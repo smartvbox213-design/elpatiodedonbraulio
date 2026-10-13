@@ -21,15 +21,23 @@ html,body{height:100%;margin:0;background:#9fd0f0;font-family:'Nunito',system-ui
 header{position:fixed;left:14px;top:calc(12px + env(safe-area-inset-top,0px));background:var(--panel);border:2px solid var(--borde);border-radius:6px;padding:8px 14px;box-shadow:4px 4px 0 var(--sombra)}
 h1{font-family:'Bowlby One','Impact',sans-serif;font-weight:400;font-size:clamp(18px,3.2vw,28px);margin:0;line-height:1.1;letter-spacing:.01em}
 header p{margin:2px 0 0;font-size:13px;color:var(--tenue);font-weight:600}
-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:calc(100% - 24px);max-width:640px}
 button{font:800 15px 'Nunito',system-ui,sans-serif;color:var(--tinta);background:var(--panel);border:2px solid var(--borde);border-radius:6px;padding:10px 16px;cursor:pointer;box-shadow:3px 3px 0 var(--sombra);min-height:44px}
 button:hover{transform:translate(-1px,-1px)}
 button[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--tinta)}
 button:focus-visible{outline:3px solid var(--tinta);outline-offset:2px}
-#globo{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));width:min(92%,520px);background:var(--panel);border:2px solid var(--borde);border-radius:14px;padding:12px 16px;box-shadow:4px 4px 0 var(--sombra);display:none}
+#ui{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:calc(100% - 24px);max-width:640px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.fila{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%}
+#globo{display:none;width:100%;background:var(--panel);border:2px solid var(--borde);border-radius:14px;padding:12px 16px;box-shadow:4px 4px 0 var(--sombra)}
 #globo.on{display:block}
+#episodios{display:none;width:100%;background:var(--panel);border:2px solid var(--borde);border-radius:14px;padding:10px;box-shadow:4px 4px 0 var(--sombra);flex-direction:column;gap:6px}
+#episodios.on{display:flex}
+#episodios p{margin:0 4px 2px;font-size:13px;font-weight:800;color:var(--tenue)}
+#episodios button{text-align:left;width:100%}
+.hablar{background:var(--acento);color:#fff;border-color:var(--tinta)}
+.hablar[aria-pressed="true"]{background:#b91c1c}
+button:disabled{opacity:.6;cursor:wait}
 #globo b{font-family:'Bowlby One','Impact',sans-serif;font-weight:400;font-size:16px;color:var(--acento)}
-#globo small{display:block;color:var(--tenue);font-weight:600;margin-bottom:4px}
+#globo small{min-height:1.2em;display:block;color:var(--tenue);font-weight:600;margin-bottom:4px}
 #globo q{display:block;font-size:17px;line-height:1.35;font-weight:800;quotes:none}
 #cargando{position:fixed;inset:0;display:grid;place-items:center;background:#9fd0f0;font-family:'Bowlby One',sans-serif;font-size:22px;color:#2b1a10}
 @media (prefers-reduced-motion:reduce){button:hover{transform:none}}
@@ -38,13 +46,25 @@ button:focus-visible{outline:3px solid var(--tinta);outline-offset:2px}
 <body>
 <canvas id="c" aria-label="Patio de campo formoseño en 3D con Don Braulio, Paco y Cacho"></canvas>
 <header><h1>El patio de Don Braulio</h1><p>Formosa · hora de la siesta</p></header>
-<div id="globo" role="status" aria-live="polite"><b id="gN"></b><small id="gR"></small><q id="gF"></q></div>
-<nav aria-label="Cámara">
-  <button data-k="general" aria-pressed="true">Todo el patio</button>
-  <button data-k="braulio" aria-pressed="false">Don Braulio</button>
-  <button data-k="paco" aria-pressed="false">Paco</button>
-  <button data-k="cacho" aria-pressed="false">Cacho</button>
-</nav>
+<div id="ui">
+  <div id="globo" role="status" aria-live="polite"><b id="gN"></b><small id="gR"></small><q id="gF"></q></div>
+  <div id="episodios" role="group" aria-label="Episodios">
+    <p>Elegí un episodio para que dialoguen:</p>
+    <button data-ep="0">1 · El sabelotodo de la provincia</button>
+    <button data-ep="1">2 · El ojo aéreo de la flora</button>
+    <button data-ep="2">3 · El embajador de la fauna</button>
+  </div>
+  <div class="fila">
+    <button id="bHablar" class="hablar" aria-pressed="false">Hablar con Don Braulio</button>
+    <button id="bDialogo" aria-pressed="false">Que dialoguen</button>
+  </div>
+  <nav class="fila" aria-label="Cámara">
+    <button data-k="general" aria-pressed="true">Todo el patio</button>
+    <button data-k="braulio" aria-pressed="false">Don Braulio</button>
+    <button data-k="paco" aria-pressed="false">Paco</button>
+    <button data-k="cacho" aria-pressed="false">Cacho</button>
+  </nav>
+</div>
 <div id="cargando">Cebando el tereré…</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -144,7 +164,7 @@ Object.keys(SPR).forEach(function(k){
     s.scale.set(p.alto*asp,p.alto,1);
     s.center.set(0.5,0);
     s.position.set(p.x,p.y,p.z);
-    s.userData.k=k; scene.add(s); pers[k]=s; clic.push(s);
+    s.userData.k=k; s.userData.base=[s.scale.x,s.scale.y]; scene.add(s); pers[k]=s; clic.push(s);
     if(k==='braulio'){ // sombra de contacto
       var sh=new THREE.Mesh(new THREE.CircleGeometry(0.9,20),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.25}));
       sh.rotation.x=-Math.PI/2; sh.position.set(p.x,0.02,p.z); scene.add(sh);
@@ -168,14 +188,15 @@ function aplicar(){
   camera.position.set(x,Math.max(y,0.6),z); camera.lookAt(cur.t[0],cur.t[1],cur.t[2]);
 }
 var reducir=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
-function enfocar(k){
+function enfocar(k,ficha){
   vistaK=k; var v=VISTAS[k];
   dst={t:v.t.slice(),d:v.d,az:v.az,el:v.el};
   if(reducir){cur={t:dst.t.slice(),d:dst.d,az:dst.az,el:dst.el};}
   document.querySelectorAll('nav button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.k===k))});
-  var g=document.getElementById('globo');
-  if(FICHA[k]){document.getElementById('gN').textContent=FICHA[k].n;document.getElementById('gR').textContent=FICHA[k].r;document.getElementById('gF').textContent=FICHA[k].f;g.classList.add('on');}
-  else g.classList.remove('on');
+  if(typeof etiquetaHablar==='function') etiquetaHablar();
+  if(ficha===false) return;
+  if(FICHA[k]){ if(!conv&&!dialogando) mostrar(FICHA[k].n,FICHA[k].r,FICHA[k].f); }
+  else if(!conv&&!dialogando) globo.classList.remove('on');
 }
 document.querySelectorAll('nav button').forEach(function(b){b.addEventListener('click',function(){enfocar(b.dataset.k)})});
 
@@ -212,10 +233,140 @@ function loop(now){
   if(!reducir){ // leve vaivén de Cacho colgado
     var s=(now-t0)/1000;
     if(pers.cacho) pers.cacho.position.y=POS.cacho.y+Math.sin(s*1.6)*0.06;
+    Object.keys(pers).forEach(function(k){var sp=pers[k],b=sp.userData.base,f=(hablaK===k)?1+0.045*Math.abs(Math.sin(s*9)):1;sp.scale.set(b[0]*f,b[1]*f,1)});
     if(pers.paco) pers.paco.position.y=POS.paco.y+Math.sin(s*2.4+1)*0.02;
   }
   renderer.render(scene,camera);
 }
+
+/* ===== Conversación en vivo y diálogo entre personajes ===== */
+var AGENTES={braulio:'agent_7801m4vg1n36fbzrh8snkx85fced',paco:'agent_0001m4vg1zpqe4g9aqj3qavj8aph',cacho:'agent_9801m4vg2a83f5ntym72e0wfv0tt'};
+var SDK_URL='https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm';
+var conv=null, convK=null, dialogando=false, parar=false, hablaK=null, cortar=null, conectando=false;
+var globo=document.getElementById('globo'), gN=document.getElementById('gN'), gR=document.getElementById('gR'), gF=document.getElementById('gF');
+var bH=document.getElementById('bHablar'), bD=document.getElementById('bDialogo'), menu=document.getElementById('episodios');
+var NOMBRE={braulio:'Don Braulio',paco:'Paco',cacho:'Cacho'};
+function mostrar(n,r,f){gN.textContent=n;gR.textContent=r||'';gF.textContent=f||'';globo.classList.add('on');}
+function quien(){return vistaK==='general'?'braulio':vistaK;}
+function etiquetaHablar(){
+  if(conv||conectando) return;
+  bH.textContent='Hablar con '+NOMBRE[quien()]; bH.setAttribute('aria-pressed','false'); bH.disabled=false;
+}
+function estadoH(txt,act){bH.textContent=txt;bH.setAttribute('aria-pressed',String(!!act));}
+
+async function colgar(){
+  var c=conv; conv=null; convK=null; hablaK=null; conectando=false;
+  try{ if(c) await c.endSession(); }catch(e){}
+  etiquetaHablar();
+}
+async function hablar(){
+  if(conv){ await colgar(); mostrar('Hasta luego','','¡Volvé cuando quieras, che!'); return; }
+  if(conectando) return;
+  detenerDialogo();
+  var k=quien(); enfocar(k,false);
+  conectando=true; bH.disabled=true; estadoH('Conectando…',true);
+  mostrar(NOMBRE[k],'Conectando con el agente…','');
+  try{
+    try{ var st=await navigator.mediaDevices.getUserMedia({audio:true}); st.getTracks().forEach(function(t){t.stop()}); }
+    catch(e){ var er=new Error('mic'); er.mic=true; throw er; }
+    var mod=await import(SDK_URL), C=mod.Conversation;
+    var opts={
+      agentId:AGENTES[k],
+      onConnect:function(){ estadoH('Colgar',true); bH.disabled=false; conectando=false; mostrar(NOMBRE[k],'Escuchando… hablá cuando quieras',''); },
+      onDisconnect:function(){ if(conv){ conv=null; convK=null; hablaK=null; } conectando=false; etiquetaHablar(); },
+      onError:function(m){ mostrar(NOMBRE[k],'Hubo un problema con la conexión',''); },
+      onModeChange:function(m){
+        var sp=(m&&m.mode)==='speaking'; hablaK=sp?k:null;
+        gR.textContent=sp?('Habla '+NOMBRE[k]):'Escuchando… hablá cuando quieras';
+        estadoH('Colgar',true);
+      },
+      onMessage:function(m){
+        var rol=(m&&(m.source||m.role))||''; var txt=(m&&m.message)||'';
+        if(!txt) return;
+        if(rol==='user'){ gR.textContent='Vos: '+txt; } else { gN.textContent=NOMBRE[k]; gF.textContent=txt; }
+      }
+    };
+    try{ conv=await C.startSession(Object.assign({connectionType:'webrtc'},opts)); }
+    catch(e1){ conv=await C.startSession(Object.assign({connectionType:'websocket'},opts)); }
+    convK=k;
+  }catch(e){
+    conv=null; convK=null; conectando=false; hablaK=null; etiquetaHablar();
+    mostrar(NOMBRE[k], e&&e.mic?'Necesito permiso del micrófono':'No pude conectar',
+      e&&e.mic?'Habilitá el micrófono en el navegador y volvé a tocar “Hablar”.':'Revisá tu conexión a internet y probá de nuevo en un momento.');
+  }
+}
+bH.addEventListener('click',hablar);
+
+/* --- Episodios (guiones del proyecto) --- */
+var EPIS=[
+ {t:'El sabelotodo de la provincia',l:[
+  ['braulio','Viste que la gente de afuera no entiende cómo es el Bañado La Estrella, che. Creen que es solo agua, pero la Ruta 28 ahí arriba es una obra de ingeniería tremenda para la provincia.'],
+  ['paco','¡Esa parte, Don Braulio! Desde el aire, mirá un poco lo que son los champales... ¡Llenos de enredaderas! El verde que hay ahí es una barbaridad, chamigo.'],
+  ['cacho','¡Nambrena! Muy lindo el asfalto, pero los yacarés que toman sol al costado del camino se hacen los vivos con cualquiera que pasa. Capaz que te descuidás y te roban el tereré.'],
+  ['braulio','Qué ocurrencia, Cacho. Los bichos no molestan si uno los respeta. Así nomás es la naturaleza en Formosa, hay que saber mirar.']]},
+ {t:'El ojo aéreo de la flora',l:[
+  ['paco','¿Qué tal, che? ¿Viste qué? Ya empezó la época y el monte se está vistiendo de rosa con los lapachos. Yo los reconozco ahí nomás desde el cielo.'],
+  ['cacho','¡Mentira es! Vos volás alto para buscar los algarrobos y bajarte las chauchas dulces antes que tus parientes. Tarado del monte resultaste.'],
+  ['paco','¡No hables de balde, cara rota! Yo cuido los árboles del patio. El algarrobo da una sombra que te salva la vida con este calor, ¿o no, Don Braulio?'],
+  ['braulio','La verdad que sí, Paco. El algarrobo es el pulmón de nuestra tierra. Esperá un cacho, Cacho, bajá de ahí y dejen de pelear por las chauchas.']]},
+ {t:'El embajador de la fauna',l:[
+  ['cacho','Che, Don Braulio, avísele al loro este que ande con cuidado en el piso. Al ratito que se duerme la siesta, se mueven las yararás en el pasto seco.'],
+  ['paco','¡Epa! ¡¿Una yarará?! ¡Don Braulio, tire un cascote! ¡Me voy para la rama más alta de una!'],
+  ['cacho','¡Mirá un poco cómo vuela el tembo! Era para que mires dónde pisás nomás, si con este sol los bichos buscan la sombra igual que nosotros.'],
+  ['braulio','No le hagas asustar de balde, Cacho. Pero es verdad lo que dice el mono, che. En Formosa al monte se lo respeta, de día y de noche. Y bueno... vengan que ya cambió el agua.']]}
+];
+var TONO={braulio:{p:0.8,r:0.92},paco:{p:1.6,r:1.18},cacho:{p:1.3,r:1.28}};
+var voces={}, hayVoz=false;
+function cargarVoces(){
+  if(!('speechSynthesis' in window)) return;
+  var vs=speechSynthesis.getVoices().filter(function(v){return /^es/i.test(v.lang)});
+  var pref=['es-AR','es-419','es-MX','es-US','es-ES'];
+  vs.sort(function(a,b){var x=pref.indexOf(a.lang),y=pref.indexOf(b.lang);return (x<0?9:x)-(y<0?9:y)});
+  hayVoz=vs.length>0;
+  if(hayVoz){voces.braulio=vs[0];voces.paco=vs[1%vs.length];voces.cacho=vs[2%vs.length];}
+}
+if('speechSynthesis' in window){cargarVoces();speechSynthesis.onvoiceschanged=cargarVoces;}
+function decir(k,txt){
+  return new Promise(function(res){
+    var fin=false, ms=Math.max(2200,txt.length*68), tm;
+    function ok(){ if(fin)return; fin=true; clearTimeout(tm); cortar=null; res(); }
+    cortar=function(){ try{speechSynthesis.cancel()}catch(e){} ok(); };
+    if(!hayVoz){ tm=setTimeout(ok,ms); return; }
+    tm=setTimeout(ok,ms*2+4000);
+    var u=new SpeechSynthesisUtterance(txt), v=voces[k];
+    if(v){u.voice=v;u.lang=v.lang;} else u.lang='es-AR';
+    u.pitch=TONO[k].p; u.rate=TONO[k].r; u.onend=ok; u.onerror=ok;
+    try{speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){ tm=setTimeout(ok,ms); }
+  });
+}
+function pausa(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function etiquetaDialogo(){ bD.textContent=dialogando?'Cortar el diálogo':'Que dialoguen'; bD.setAttribute('aria-pressed',String(dialogando)); }
+function detenerDialogo(){ parar=true; if(cortar) cortar(); try{speechSynthesis.cancel()}catch(e){} }
+async function dialogar(ep){
+  if(conv) await colgar();
+  menu.classList.remove('on');
+  dialogando=true; parar=false; etiquetaDialogo();
+  var E=EPIS[ep];
+  for(var i=0;i<E.l.length;i++){
+    if(parar) break;
+    var k=E.l[i][0], txt=E.l[i][1];
+    hablaK=k; enfocar(k,false);
+    mostrar(NOMBRE[k],'Episodio: '+E.t,'“'+txt+'”');
+    await decir(k,txt);
+    hablaK=null;
+    if(parar) break;
+    await pausa(450);
+  }
+  var completo=!parar;
+  dialogando=false; hablaK=null; parar=false; etiquetaDialogo();
+  if(completo){ enfocar('general',false); mostrar('Fin del episodio',E.t,'Elegí otro, o tocá “Hablar” para charlar con ellos.'); }
+}
+bD.addEventListener('click',function(){
+  if(dialogando){ detenerDialogo(); return; }
+  menu.classList.toggle('on');
+});
+menu.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){dialogar(+b.dataset.ep)})});
+etiquetaHablar();
 aplicar(); requestAnimationFrame(loop);
 })();
 </script>
